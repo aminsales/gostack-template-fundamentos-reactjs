@@ -59,3 +59,8 @@ export const Error = styled.span`
   color: #c53030;
   margin-top: 8px;
 `;
+export const ConcludedTransaction = styled.span`
+  display: block;
+  color: #12a454;
+  margin-top: 8px;
+`;

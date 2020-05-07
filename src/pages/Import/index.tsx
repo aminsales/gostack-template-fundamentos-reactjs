@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import filesize from 'filesize';
@@ -7,7 +7,14 @@ import Header from '../../components/Header';
 import FileList from '../../components/FileList';
 import Upload from '../../components/Upload';
 
-import { Container, Title, ImportFileContainer, Footer, Error } from './styles';
+import {
+  Container,
+  Title,
+  ImportFileContainer,
+  Footer,
+  Error,
+  ConcludedTransaction,
+} from './styles';
 
 import alert from '../../assets/alert.svg';
 import api from '../../services/api';
@@ -21,6 +28,7 @@ interface FileProps {
 const Import: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<FileProps[]>([]);
   const [inputError, setInputError] = useState('');
+  const [correctUpload, setCorrectUpload] = useState('');
   const history = useHistory();
 
   async function handleUpload(): Promise<void> {
@@ -29,12 +37,20 @@ const Import: React.FC = () => {
     try {
       data.append('file', uploadedFiles[0].file);
       await api.post('/transactions/import', data);
+      setCorrectUpload('Importação realizada com sucesso.');
+      setInputError('');
+      setUploadedFiles([]);
     } catch (err) {
       setInputError(
         'Importação não realizada. Adicione um arquivo com a estrutura correta!',
       );
+      setUploadedFiles([]);
     }
   }
+
+  useEffect(() => {
+    setInputError('');
+  }, []);
 
   function submitFile(files: File[]): void {
     // TODO
@@ -48,6 +64,7 @@ const Import: React.FC = () => {
     });
 
     setUploadedFiles(submitedFiles);
+    setInputError('');
   }
 
   return (
@@ -59,6 +76,9 @@ const Import: React.FC = () => {
           <Upload onUpload={submitFile} />
           {!!uploadedFiles.length && <FileList files={uploadedFiles} />}
           {inputError && <Error>{inputError}</Error>}
+          {correctUpload && (
+            <ConcludedTransaction>{correctUpload}</ConcludedTransaction>
+          )}
           <Footer>
             <p>
               <img src={alert} alt="Alert" />
